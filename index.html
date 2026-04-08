@@ -5,383 +5,676 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trésorerie DOMTY</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #1a1a1a; padding: 16px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #1a1a1a; padding: 16px; }
+h1 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.subtitle { font-size: 11px; color: #888; margin-bottom: 14px; }
 
-  h1 { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; }
-  .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 14px; }
+.kpi { background: #f5f5f5; border-radius: 8px; padding: 10px 12px; }
+.kpi-label { font-size: 11px; color: #666; margin-bottom: 3px; }
+.kpi-val { font-size: 17px; font-weight: 600; }
 
-  .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 16px; }
-  .kpi { background: #f5f5f5; border-radius: 8px; padding: 10px 12px; }
-  .kpi-label { font-size: 11px; color: #666; margin-bottom: 3px; }
-  .kpi-val { font-size: 18px; font-weight: 600; }
-  .kpi-val.pos { color: #2d7a2d; }
-  .kpi-val.neg { color: #c0392b; }
-  .kpi-val.warn { color: #8a5500; }
+.toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.btn { font-size: 12px; padding: 6px 12px; border: 0.5px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; color: #1a1a1a; }
+.btn:hover { background: #f0f0f0; }
+.btn.pri { background: #185FA5; color: #fff; border-color: #185FA5; }
+.btn.print-btn { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+.btn.danger { color: #c0392b; }
+.sep { flex: 1; }
 
-  .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-  .toolbar button { font-size: 12px; padding: 6px 12px; border: 0.5px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; color: #1a1a1a; }
-  .toolbar button:hover { background: #f0f0f0; }
-  .toolbar button.active { background: #185FA5; color: #fff; border-color: #185FA5; }
-  .toolbar select { font-size: 12px; padding: 6px 10px; border: 0.5px solid #ccc; border-radius: 6px; background: #fff; color: #1a1a1a; cursor: pointer; }
-  .toolbar input[type=text] { font-size: 12px; padding: 6px 10px; border: 0.5px solid #ccc; border-radius: 6px; width: 180px; }
-  .sep { flex: 1; }
+.nav-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; background: #f0f4f8; border-radius: 8px; padding: 8px 12px; }
+.nav-btn { font-size: 20px; padding: 2px 14px; border: 0.5px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; color: #185FA5; font-weight: 700; line-height: 1.4; }
+.nav-btn:hover { background: #185FA5; color: #fff; }
+.nav-info { font-size: 12px; color: #555; flex: 1; text-align: center; }
+.nav-months { font-size: 13px; color: #185FA5; font-weight: 700; }
+.nav-sub { font-size: 11px; color: #888; margin-top: 2px; }
 
-  .table-wrap { overflow-x: auto; border: 0.5px solid #e0e0e0; border-radius: 10px; }
-  table { width: 100%; border-collapse: collapse; min-width: 700px; }
-  thead th { background: #185FA5; color: #fff; padding: 8px 10px; text-align: right; font-size: 12px; font-weight: 500; position: sticky; top: 0; }
-  thead th:first-child { text-align: left; min-width: 220px; }
-  thead th:nth-child(2) { text-align: center; width: 110px; }
+.legend { display: flex; gap: 14px; font-size: 11px; color: #666; margin-bottom: 8px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.ldot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-  tbody tr { border-bottom: 0.5px solid #eeeeee; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: #fafafa; }
-  tbody tr.section { background: #f0f4f8; }
-  tbody tr.section td { font-weight: 600; font-size: 12px; color: #185FA5; padding: 6px 10px; letter-spacing: 0.03em; }
-  tbody tr.total-enc { background: #eaf4ea; }
-  tbody tr.total-dec { background: #fdf0ee; }
-  tbody tr.flux { background: #e8f0fb; }
-  tbody tr.solde { background: #185FA5; }
-  tbody tr.solde td { color: #fff; font-weight: 600; }
-  tbody tr.dette { background: #fff8e1; }
+.table-wrap { overflow-x: auto; border: 0.5px solid #e0e0e0; border-radius: 10px; margin-bottom: 14px; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+thead th { background: #185FA5; color: #fff; padding: 7px 8px; text-align: right; font-size: 11px; font-weight: 600; white-space: nowrap; }
+thead th:first-child { text-align: left; min-width: 185px; width: 185px; position: sticky; left: 0; z-index: 2; background: #185FA5; }
+thead th:nth-child(2) { text-align: center; width: 60px; }
+thead th.cur-month { background: #0C447C; }
 
-  td { padding: 7px 10px; text-align: right; font-size: 12px; }
-  td:first-child { text-align: left; color: #444; }
-  td:nth-child(2) { text-align: center; }
-  td.pos { color: #2d7a2d; font-weight: 500; }
-  td.neg { color: #c0392b; font-weight: 500; }
-  td.warn { color: #8a5500; }
-  td.bold { font-weight: 600; }
+tbody tr { border-bottom: 0.5px solid #eeeeee; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover:not(.section):not(.ca-row):not(.total-enc):not(.total-dec):not(.flux-row):not(.solde-row) { background: #fafafa; }
+tr.section td { font-weight: 700; font-size: 11px; color: #185FA5; padding: 5px 8px; background: #eef4fb; letter-spacing: 0.04em; }
+tr.ca-row { background: #f0f7ff; }
+tr.ca-row td { color: #0C447C; font-size: 12px; }
+tr.total-enc { background: #eaf4ea; }
+tr.total-dec { background: #fdf0ee; }
+tr.flux-row { background: #dceeff; }
+tr.solde-row { background: #185FA5; }
+tr.solde-row td { color: #fff; font-weight: 700; font-size: 12px; }
 
-  .editable { cursor: pointer; border-radius: 4px; padding: 2px 4px; min-width: 70px; display: inline-block; text-align: right; }
-  .editable:hover { background: #e8f0fb; }
-  .editable.editing { background: #fff; border: 1.5px solid #185FA5; outline: none; min-width: 80px; }
+td { padding: 6px 8px; text-align: right; font-size: 12px; white-space: nowrap; }
+td:first-child { text-align: left; color: #444; position: sticky; left: 0; background: #fff; z-index: 1; }
+tr.section td:first-child { background: #eef4fb; }
+tr.ca-row td:first-child { background: #f0f7ff; }
+tr.total-enc td:first-child { background: #eaf4ea; }
+tr.total-dec td:first-child { background: #fdf0ee; }
+tr.flux-row td:first-child { background: #dceeff; }
+tr.solde-row td:first-child { background: #185FA5; color: #fff; }
+td:nth-child(2) { text-align: center; }
+td.bold { font-weight: 600; }
+td.cur-col { background: rgba(24,95,165,0.06) !important; }
+tr.solde-row td.cur-col { background: rgba(255,255,255,0.12) !important; }
 
-  .badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 4px; vertical-align: middle; font-weight: 500; }
-  .badge-blue { background: #dce8f8; color: #0C447C; }
-  .badge-green { background: #d6f0d6; color: #1a5c1a; }
-  .badge-red { background: #fce4e4; color: #8b1f1f; }
-  .badge-amber { background: #fef3cd; color: #7a4500; }
+.editable { cursor: pointer; border-radius: 4px; padding: 2px 5px; min-width: 68px; display: inline-block; text-align: right; }
+.editable:hover { background: #dceeff; }
+.editable:focus { background: #fff; border: 1.5px solid #185FA5; outline: none; min-width: 80px; }
 
-  .row-actions { display: none; gap: 4px; }
-  tr:hover .row-actions { display: inline-flex; }
-  .row-actions button { font-size: 10px; padding: 1px 6px; border: 0.5px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; color: #555; }
-  .row-actions button:hover { background: #f0f0f0; }
+.badge { display: inline-block; font-size: 10px; padding: 1px 5px; border-radius: 8px; margin-left: 3px; font-weight: 500; vertical-align: middle; }
+.b-blue { background: #dce8f8; color: #0C447C; }
+.b-green { background: #d6f0d6; color: #1a5c1a; }
+.b-red { background: #fce4e4; color: #8b1f1f; }
+.b-amber { background: #fef3cd; color: #7a4500; }
+.b-calc { background: #e8f5e9; color: #1b5e20; }
 
-  .add-row-btn { font-size: 12px; color: #185FA5; cursor: pointer; padding: 8px 10px; display: block; border-top: 0.5px dashed #ccc; text-align: center; }
-  .add-row-btn:hover { background: #f0f4f8; }
+.add-btn { font-size: 12px; color: #185FA5; cursor: pointer; padding: 7px 8px; display: block; text-align: center; border-top: 0.5px dashed #ccc; }
+.add-btn:hover { background: #f0f4f8; }
 
-  .chart-bar-row { display: flex; gap: 8px; align-items: center; margin: 4px 0; }
-  .chart-bar-label { font-size: 11px; color: #666; min-width: 55px; text-align: right; }
-  .chart-bar-bg { flex: 1; background: #f0f0f0; border-radius: 3px; height: 10px; overflow: hidden; }
-  .chart-bar-fill { height: 10px; border-radius: 3px; transition: width 0.3s; }
-  .chart-bar-val { font-size: 11px; font-weight: 600; min-width: 70px; }
+.chart-section { background: #f9f9f9; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+.chart-bar-row { display: flex; gap: 8px; align-items: center; margin: 3px 0; }
+.chart-bar-label { font-size: 11px; color: #666; min-width: 62px; text-align: right; flex-shrink: 0; }
+.chart-bar-bg { flex: 1; background: #e8e8e8; border-radius: 3px; height: 10px; overflow: hidden; }
+.chart-bar-fill { height: 10px; border-radius: 3px; transition: width 0.3s; }
+.chart-bar-val { font-size: 11px; font-weight: 600; min-width: 90px; }
 
-  .chart-section { background: #f9f9f9; border-radius: 10px; padding: 14px; margin-top: 16px; }
-  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a; }
+.note { font-size: 11px; color: #888; font-style: italic; padding: 8px; background: #f9f9f9; border-radius: 6px; line-height: 1.6; }
+.saved { font-size: 11px; color: #2d7a2d; margin-left: 8px; opacity: 0; transition: opacity 0.3s; }
+.saved.show { opacity: 1; }
 
-  .note { font-size: 11px; color: #888; font-style: italic; margin-top: 10px; padding: 8px 12px; background: #f9f9f9; border-radius: 6px; }
-  .saved-indicator { font-size: 11px; color: #2d7a2d; margin-left: 8px; display: none; }
-  .saved-indicator.show { display: inline; }
+.pos { color: #2d7a2d; }
+.neg { color: #c0392b; }
+
+/* Modal impression */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 12px; padding: 24px; width: 480px; max-width: 95vw; }
+.modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+.modal label { font-size: 13px; color: #555; display: block; margin-bottom: 6px; }
+.modal select, .modal input { width: 100%; padding: 8px 10px; border: 0.5px solid #ccc; border-radius: 6px; font-size: 13px; margin-bottom: 14px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+
+/* ===== STYLES IMPRESSION PDF ===== */
+@media print {
+  @page { size: A4 landscape; margin: 10mm 8mm; }
+  body { padding: 0; font-size: 11px; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  h1 { font-size: 14px; }
+  .kpi-row { grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 10px; }
+  .kpi { padding: 6px 8px; }
+  .kpi-val { font-size: 14px; }
+  .table-wrap { border: none; border-radius: 0; overflow: visible; }
+  table { font-size: 10px; min-width: unset; page-break-inside: avoid; }
+  thead th { padding: 5px 6px; font-size: 10px; }
+  td { padding: 4px 6px; font-size: 10px; }
+  td:first-child { position: static; }
+  thead th:first-child { position: static; }
+  .chart-section { display: none; }
+  .nav-bar { display: none; }
+  .legend { display: none; }
+  .note { font-size: 10px; padding: 5px; margin-top: 6px; }
+  .print-header { display: flex !important; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid #185FA5; }
+  .print-header h1 { color: #185FA5; }
+  .print-period { font-size: 12px; color: #555; }
+  tr.solde-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tr.section { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tr.total-enc, tr.total-dec, tr.flux-row, tr.ca-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.print-header { display: none; }
+.print-only { display: none; }
 </style>
 </head>
 <body>
 
-<h1>Compte de trésorerie — DOMTY <span class="saved-indicator" id="saved">Sauvegardé</span></h1>
-<p class="subtitle">Tous les flux en TTC · Modifiable en cliquant sur chaque valeur · Sauvegarde automatique locale</p>
+<!-- En-tête impression uniquement -->
+<div class="print-header" id="print-header">
+  <h1>Compte de trésorerie — DOMTY</h1>
+  <div class="print-period" id="print-period"></div>
+</div>
+
+<h1 class="no-print">Compte de trésorerie — DOMTY <span class="saved" id="saved-ind">Sauvegardé</span></h1>
+<p class="subtitle no-print">Défilement infini · TTC · Cliquez sur une valeur pour la modifier · Impression PDF A4 paysage disponible</p>
 
 <div class="kpi-row" id="kpi-row"></div>
 
-<div class="toolbar">
-  <button class="active" onclick="setView('all')">Tous les mois</button>
-  <button onclick="setView('enc')">Encaissements</button>
-  <button onclick="setView('dec')">Décaissements</button>
+<div class="toolbar no-print">
+  <button class="btn pri" onclick="showSettings()">Solde initial</button>
+  <button class="btn" onclick="addCustomRow('enc')">+ Entrée</button>
+  <button class="btn" onclick="addCustomRow('dec')">+ Sortie</button>
   <div class="sep"></div>
-  <button onclick="addMonth()">+ Ajouter un mois</button>
-  <button onclick="exportCSV()">Exporter CSV</button>
-  <button onclick="resetData()" style="color:#c0392b;">Réinitialiser</button>
+  <button class="btn print-btn" onclick="openPrintModal()">Imprimer / PDF</button>
+  <button class="btn" onclick="exportCSV()">Exporter CSV</button>
+  <button class="btn danger" onclick="resetData()">Réinitialiser</button>
+</div>
+
+<div class="nav-bar no-print">
+  <button class="nav-btn" onclick="navigate(-6)" title="Reculer de 6 mois">&#8656;</button>
+  <button class="nav-btn" onclick="navigate(-1)" title="Reculer d'1 mois">&#8592;</button>
+  <div class="nav-info">
+    <div class="nav-months" id="nav-label"></div>
+    <div class="nav-sub" id="nav-sub"></div>
+  </div>
+  <button class="nav-btn" onclick="navigate(1)" title="Avancer d'1 mois">&#8594;</button>
+  <button class="nav-btn" onclick="navigate(6)" title="Avancer de 6 mois">&#8658;</button>
+  <button class="btn" onclick="goToToday()" style="font-size:11px;">Aujourd'hui</button>
+</div>
+
+<div class="legend no-print">
+  <span><div class="ldot" style="background:#2d7a2d;"></div> Calculé auto (modifiable)</span>
+  <span><div class="ldot" style="background:#e0a800;"></div> Remplacé manuellement</span>
+  <span><div class="ldot" style="background:#0C447C;"></div> Mois actuel</span>
 </div>
 
 <div class="table-wrap">
   <table id="main-table">
-    <thead id="table-head"></thead>
-    <tbody id="table-body"></tbody>
+    <thead id="thead"></thead>
+    <tbody id="tbody"></tbody>
   </table>
 </div>
 
-<div class="chart-section">
-  <div class="chart-title">Évolution du solde cumulé (TTC)</div>
-  <div id="chart-bars"></div>
+<div class="chart-section no-print">
+  <div class="chart-title">Solde cumulé — fenêtre visible</div>
+  <div id="chart"></div>
 </div>
 
-<div class="note" id="footer-note">* Solde 60% = facturation nette des acomptes déjà perçus · TVA créditrice ~1 200 €/mois · URSSAF et TVA à jour · Cliquez sur n'importe quelle valeur pour la modifier</div>
+<div class="note">* CA TTC = CA HT × 1,10 · Solde 60% = CA TTC × 60% (auto, modifiable) · Double-clic sur cellule auto = remettre calcul · Flèche double = ±6 mois · Flèche simple = ±1 mois</div>
+
+<!-- Modal impression -->
+<div class="modal-overlay no-print" id="modal-overlay">
+  <div class="modal">
+    <h2>Imprimer / Exporter en PDF</h2>
+    <label>Mois de début de la période</label>
+    <select id="print-start"></select>
+    <label>Nombre de mois à imprimer <span style="color:#888">(toujours 12 mois, A4 paysage)</span></label>
+    <select id="print-count">
+      <option value="12" selected>12 mois</option>
+    </select>
+    <label style="font-size:11px;color:#888;margin-top:-8px;margin-bottom:12px;display:block;">
+      Format : A4 paysage · 12 mois par page · Totaux inclus
+    </label>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">Annuler</button>
+      <button class="btn print-btn" onclick="doPrint()">Imprimer / PDF</button>
+    </div>
+  </div>
+</div>
 
 <script>
-const DEFAULT_DATA = {
+const MONTHS_FR = ["Jan.","Fév.","Mar.","Avr.","Mai","Juin","Juil.","Août","Sept.","Oct.","Nov.","Déc."];
+const VIEW_SIZE = 6;
+
+const NOW = new Date();
+const CUR_YEAR = NOW.getFullYear();
+const CUR_MONTH = NOW.getMonth();
+
+function monthKey(y, m) { return y * 12 + m; }
+function keyToYM(k) { return { year: Math.floor(k/12), month: k%12 }; }
+function labelFromKey(k) { const {year,month} = keyToYM(k); return MONTHS_FR[month] + " " + String(year).slice(2); }
+function fullLabelFromKey(k) { const {year,month} = keyToYM(k); return MONTHS_FR[month] + " " + year; }
+
+// Stockage : clé = "YYYY_MM" -> valeurs par ligneId
+const DEFAULT_STATE = {
   soldeDepart: -100000,
-  detteFournisseurs: 122000,
-  months: ["Avr.", "Mai", "Juin", "Juil.", "Août", "Sept."],
-  rows: [
-    { id:"enc_title", label:"ENCAISSEMENTS TTC", type:"section", enc: true },
-    { id:"enc_factu", label:"Solde factu. 60% (269 500×60%)", type:"enc", badge:"blue", values:[161700,161700,161700,161700,161700,161700] },
-    { id:"enc_report", label:"Report solde 60% fév.+mars", type:"enc", badge:"", values:[99000,0,0,0,0,0] },
-    { id:"enc_acomptes_avr", label:"Acomptes avant 15 avril (TTC)", type:"enc", badge:"", values:[200000,0,0,0,0,0] },
-    { id:"enc_acomptes_mens", label:"Acomptes mensuels nv. chantiers (132k TTC)", type:"enc", badge:"", values:[132000,132000,132000,132000,132000,132000] },
-    { id:"enc_acomptes_ponct", label:"Acomptes ponctuels identifiés", type:"enc", badge:"", values:[0,0,0,80000,0,80000] },
-    { id:"enc_recouvrement", label:"Recouvrement SCI 3 Soeurs", type:"enc", badge:"amber", values:[0,25000,0,0,0,0] },
-    { id:"total_enc", label:"Total encaissements TTC", type:"total-enc" },
-    { id:"dec_title", label:"DÉCAISSEMENTS TTC", type:"section", enc: false },
-    { id:"dec_salaires", label:"Salaires + charges sociales", type:"dec", values:[115000,115000,115000,115000,115000,115000] },
-    { id:"dec_charges", label:"Charges externes (55k HT × 1,20)", type:"dec", values:[66000,66000,66000,66000,66000,66000] },
-    { id:"dec_st", label:"ST + intérim (5% × 245k HT × 1,20)", type:"dec", values:[14700,14700,14700,14700,14700,14700] },
-    { id:"dec_materiaux", label:"Achats matériaux (25% × 245k HT × 1,20)", type:"dec", values:[73500,73500,73500,73500,73500,73500] },
-    { id:"dec_emprunts", label:"Remboursements emprunts / crédit-baux", type:"dec", values:[15000,15000,15000,15000,15000,15000] },
-    { id:"dec_dette", label:"Apurement dette fournisseurs", type:"dec", badge:"amber", values:[122000,0,0,0,0,0] },
-    { id:"total_dec", label:"Total décaissements TTC", type:"total-dec" },
-    { id:"flux", label:"Flux net mensuel", type:"flux" },
-    { id:"solde", label:"Solde cumulé (base " + (-100000).toLocaleString('fr-FR') + " €)", type:"solde" }
-  ]
+  viewStartKey: monthKey(CUR_YEAR, CUR_MONTH),
+  data: {},
+  caHT: {},
+  customRows: []
 };
 
-let state = JSON.parse(localStorage.getItem('domty_treo') || 'null') || JSON.parse(JSON.stringify(DEFAULT_DATA));
-let currentView = 'all';
+const FIXED_ROWS = [
+  { id:"enc_factu60",  label:"Solde factu. 60% (auto CA TTC)",      type:"enc", auto:true,  badge:"calc"  },
+  { id:"enc_report",   label:"Report solde 60% fév.+mars",           type:"enc", auto:false, badge:""      },
+  { id:"enc_avr",      label:"Acomptes avant 15 avr. (TTC)",         type:"enc", auto:false, badge:""      },
+  { id:"enc_mens",     label:"Acomptes mensuels nv. chantiers (TTC)",type:"enc", auto:false, badge:""      },
+  { id:"enc_ponct",    label:"Acomptes ponctuels identifiés",        type:"enc", auto:false, badge:"amber" },
+  { id:"enc_sci",      label:"Recouvrement SCI 3 Soeurs",            type:"enc", auto:false, badge:"amber" },
+  { id:"dec_salaires", label:"Salaires + charges sociales",          type:"dec", auto:false, badge:""      },
+  { id:"dec_charges",  label:"Charges externes (55k HT × 1,20)",     type:"dec", auto:false, badge:""      },
+  { id:"dec_st",       label:"ST + intérim (5% CA HT × 1,20)",       type:"dec", auto:false, badge:""      },
+  { id:"dec_mat",      label:"Achats matériaux (25% CA HT × 1,20)",  type:"dec", auto:false, badge:""      },
+  { id:"dec_emprunts", label:"Remboursements emprunts / CB",          type:"dec", auto:false, badge:""      },
+  { id:"dec_dette",    label:"Apurement dette fournisseurs",          type:"dec", auto:false, badge:"amber" },
+];
 
-function fmt(v) {
-  if (v === 0 || v === '') return '—';
-  return new Intl.NumberFormat('fr-FR', {maximumFractionDigits:0}).format(Math.round(v)) + ' €';
-}
-function fmtSigned(v) {
-  const s = new Intl.NumberFormat('fr-FR', {maximumFractionDigits:0}).format(Math.abs(Math.round(v))) + ' €';
-  return (v >= 0 ? '+' : '−') + s;
-}
-function cls(v) { return v > 0 ? 'pos' : v < 0 ? 'neg' : ''; }
+// Valeurs initiales par mois relatif à aujourd'hui
+const INIT_VALS = {
+  "enc_factu60":  { auto:true },
+  "enc_report":   [99000,0,0,0,0,0,0,0,0,0,0,0],
+  "enc_avr":      [200000,0,0,0,0,0,0,0,0,0,0,0],
+  "enc_mens":     132000,
+  "enc_ponct":    [0,0,0,80000,0,80000,0,0,0,0,0,0],
+  "enc_sci":      [0,25000,0,0,0,0,0,0,0,0,0,0],
+  "dec_salaires": 115000,
+  "dec_charges":  66000,
+  "dec_st":       14700,
+  "dec_mat":      73500,
+  "dec_emprunts": 15000,
+  "dec_dette":    [122000,0,0,0,0,0,0,0,0,0,0,0],
+};
 
-function computeTotals() {
-  const n = state.months.length;
-  const encRows = state.rows.filter(r => r.type === 'enc');
-  const decRows = state.rows.filter(r => r.type === 'dec');
-  const totEnc = Array(n).fill(0);
-  const totDec = Array(n).fill(0);
-  encRows.forEach(r => r.values.forEach((v,i) => totEnc[i] += (v||0)));
-  decRows.forEach(r => r.values.forEach((v,i) => totDec[i] += (v||0)));
-  const flux = totEnc.map((v,i) => v - totDec[i]);
-  const solde = [];
-  let cum = state.soldeDepart;
-  flux.forEach(f => { cum += f; solde.push(cum); });
-  return { totEnc, totDec, flux, solde };
+let S = (() => {
+  try { const d = localStorage.getItem('domty_treo_v4'); if(d) return JSON.parse(d); } catch(e){}
+  const s = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  // Pré-remplir 24 mois autour d'aujourd'hui
+  for(let i=0;i<24;i++) {
+    const k = monthKey(CUR_YEAR, CUR_MONTH) + i - 0;
+    const {year,month} = keyToYM(k);
+    const mk = year+'_'+month;
+    s.caHT[mk] = 245000;
+    FIXED_ROWS.forEach(row => {
+      if(row.auto) return;
+      const init = INIT_VALS[row.id];
+      let val = 0;
+      if(typeof init === 'number') val = init;
+      else if(Array.isArray(init)) val = init[i] || 0;
+      if(!s.data[mk]) s.data[mk] = {};
+      s.data[mk][row.id] = val;
+    });
+  }
+  return s;
+})();
+
+// Obtenir les clés de mois visibles (VIEW_SIZE mois à partir de viewStartKey)
+function getViewKeys() {
+  return Array.from({length:VIEW_SIZE}, (_,i) => S.viewStartKey + i);
+}
+
+// Obtenir toutes les lignes (fixes + custom)
+function getAllRows() { return [...FIXED_ROWS, ...(S.customRows||[])]; }
+
+// Lire/écrire une valeur pour une ligne et un mois-clé
+function getMonthKey(mKey) {
+  const {year,month} = keyToYM(mKey);
+  return year+'_'+month;
+}
+function readVal(rowId, mKey) {
+  const mk = getMonthKey(mKey);
+  const row = getAllRows().find(r=>r.id===rowId);
+  if(!row) return 0;
+  if(row.auto) {
+    // Vérifier si override
+    const over = S.data[mk] && S.data[mk][rowId+'_override'];
+    if(over !== undefined) return over;
+    const ht = S.caHT[mk] || 0;
+    return Math.round(ht * 1.10 * 0.60);
+  }
+  return (S.data[mk] && S.data[mk][rowId] != null) ? S.data[mk][rowId] : 0;
+}
+function writeVal(rowId, mKey, val, isOverride) {
+  const mk = getMonthKey(mKey);
+  if(!S.data[mk]) S.data[mk] = {};
+  if(isOverride) S.data[mk][rowId+'_override'] = val;
+  else S.data[mk][rowId] = val;
+}
+function clearOverride(rowId, mKey) {
+  const mk = getMonthKey(mKey);
+  if(S.data[mk]) delete S.data[mk][rowId+'_override'];
+}
+function isOverridden(rowId, mKey) {
+  const mk = getMonthKey(mKey);
+  return S.data[mk] && S.data[mk][rowId+'_override'] !== undefined;
 }
 
 function save() {
-  localStorage.setItem('domty_treo', JSON.stringify(state));
-  const ind = document.getElementById('saved');
-  if(ind) { ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),1500); }
+  localStorage.setItem('domty_treo_v4', JSON.stringify(S));
+  const el = document.getElementById('saved-ind');
+  if(el){ el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
+}
+
+const fmt = v => v===0?'—':new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(Math.round(v))+'€';
+const fmtS = v => (v>=0?'+':'−')+new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(Math.abs(Math.round(v)))+'€';
+const clsColor = v => v>0?'#2d7a2d':v<0?'#c0392b':'#888';
+
+// Calcul sur N mois à partir d'une clé de départ
+function computeRange(startKey, count) {
+  const keys = Array.from({length:count},(_,i)=>startKey+i);
+  const allRows = getAllRows();
+  const enc = Array(count).fill(0);
+  const dec = Array(count).fill(0);
+  allRows.forEach(row => {
+    keys.forEach((k,i) => {
+      const v = readVal(row.id, k);
+      if(row.type==='enc') enc[i]+=v;
+      else if(row.type==='dec') dec[i]+=v;
+    });
+  });
+  const flux = enc.map((e,i)=>e-dec[i]);
+  const solde = [];
+  let cum = S.soldeDepart;
+  flux.forEach(f=>{cum+=f;solde.push(Math.round(cum));});
+  return {keys, enc, dec, flux, solde};
+}
+
+function navigate(delta) {
+  S.viewStartKey += delta;
+  save(); render();
+}
+function goToToday() {
+  S.viewStartKey = monthKey(CUR_YEAR, CUR_MONTH);
+  save(); render();
+}
+
+function updateNav() {
+  const vk = getViewKeys();
+  document.getElementById('nav-label').textContent = labelFromKey(vk[0]) + ' → ' + labelFromKey(vk[vk.length-1]);
+  document.getElementById('nav-sub').textContent = 'Fenêtre de ' + VIEW_SIZE + ' mois · défilement infini';
 }
 
 function renderKPI() {
-  const { totEnc, totDec, flux, solde } = computeTotals();
-  const totalEncAll = totEnc.reduce((a,b)=>a+b,0);
-  const totalDecAll = totDec.reduce((a,b)=>a+b,0);
-  const soldeFinal = solde[solde.length-1];
-  const posFinal = soldeFinal >= 0;
-
+  const {enc,dec,flux,solde} = computeRange(S.viewStartKey, VIEW_SIZE);
+  const tEnc = enc.reduce((a,b)=>a+b,0);
+  const tDec = dec.reduce((a,b)=>a+b,0);
+  const sf12 = computeRange(S.viewStartKey, 12).solde;
+  const sf = sf12[sf12.length-1];
   document.getElementById('kpi-row').innerHTML = `
-    <div class="kpi"><div class="kpi-label">Solde bancaire actuel</div><div class="kpi-val neg">${fmt(state.soldeDepart)}</div></div>
-    <div class="kpi"><div class="kpi-label">Total encaissements 6 mois</div><div class="kpi-val pos">${fmt(totalEncAll)}</div></div>
-    <div class="kpi"><div class="kpi-label">Total décaissements 6 mois</div><div class="kpi-val neg">${fmt(totalDecAll)}</div></div>
-    <div class="kpi"><div class="kpi-label">Solde final prévu</div><div class="kpi-val ${posFinal?'pos':'neg'}">${fmtSigned(soldeFinal)}</div></div>
-  `;
+    <div class="kpi"><div class="kpi-label">Solde actuel</div><div class="kpi-val" style="color:${clsColor(S.soldeDepart)}">${fmt(S.soldeDepart)}</div></div>
+    <div class="kpi"><div class="kpi-label">Encaissements (vue)</div><div class="kpi-val" style="color:#2d7a2d">${fmt(tEnc)}</div></div>
+    <div class="kpi"><div class="kpi-label">Décaissements (vue)</div><div class="kpi-val" style="color:#c0392b">${fmt(tDec)}</div></div>
+    <div class="kpi"><div class="kpi-label">Solde fin 12 mois</div><div class="kpi-val" style="color:${clsColor(sf)}">${fmtS(sf)}</div></div>`;
+}
+
+function buildTable(startKey, viewCount, options={}) {
+  const {enc,dec,flux,solde,keys} = computeRange(startKey, viewCount);
+  const allRows = getAllRows();
+  const curKey = monthKey(CUR_YEAR, CUR_MONTH);
+  const isPrint = options.print || false;
+  const totalCol = options.totalCol !== false;
+
+  // Header
+  let hCells = keys.map(k => {
+    const isCur = k===curKey;
+    return `<th class="${isCur?'cur-month':''}">${labelFromKey(k)}</th>`;
+  }).join('');
+  const headHTML = `<tr><th>Poste</th>${!isPrint?'<th>Type</th>':''}${hCells}${totalCol?'<th>Total</th>':''}</tr>`;
+
+  let bodyHTML = '';
+
+  const section = (label) => `<tr class="section"><td colspan="${viewCount+(isPrint?2:3)}">${label}</td></tr>`;
+
+  const isCurFn = k => k===curKey;
+  const typeTd = (row, isPrint) => isPrint?'':(`<td style="text-align:center">`+(row.type==='enc'?'<span class="badge b-green">Entrée</span>':'<span class="badge b-red">Sortie</span>')+'</td>');
+
+  // CA rows
+  bodyHTML += section('CA DU MOIS');
+  ['CA HT saisi','CA TTC (× 1,10)'].forEach((label,idx)=>{
+    let cells='', tot=0;
+    keys.forEach(k=>{
+      const mk = getMonthKey(k);
+      const ht = S.caHT[mk]||0;
+      const val = idx===0?ht:Math.round(ht*1.10);
+      tot+=val;
+      const cur = isCurFn(k)?' cur-col':'';
+      if(idx===0 && !isPrint) {
+        cells+=`<td class="${cur}"><span class="editable" contenteditable="true" onblur="updateCA(${k},this)" onkeydown="if(event.key==='Enter')this.blur()">${fmt(val)}</span></td>`;
+      } else {
+        cells+=`<td class="pos bold${cur}">${fmt(val)}</td>`;
+      }
+    });
+    const typePart = isPrint?'':'<td style="text-align:center"><span class="badge '+(idx===0?'b-blue':'b-calc')+'">'+(idx===0?'Info':'Auto')+'</span></td>';
+    bodyHTML+=`<tr class="ca-row"><td><strong>${label}</strong></td>${typePart}${cells}${totalCol?`<td class="${idx===1?'pos':''} bold">${fmt(tot)}</td>`:''}</tr>`;
+  });
+
+  // Enc rows
+  bodyHTML += section('ENCAISSEMENTS TTC');
+  allRows.filter(r=>r.type==='enc').forEach(row=>{
+    let cells='', tot=0;
+    keys.forEach(k=>{
+      const v = readVal(row.id,k);
+      tot+=v;
+      const over = isOverridden(row.id,k);
+      const isAuto = row.auto && !over;
+      const styleColor = isAuto?'color:#2d7a2d':over?'color:#e0a800':'';
+      const cur = isCurFn(k)?' cur-col':'';
+      if(!isPrint) {
+        cells+=`<td class="${cur}"><span class="editable" style="${styleColor}" contenteditable="true"
+          title="${isAuto?'Auto CA TTC×60% — double-clic pour forcer':over?'Modifié manuellement — double-clic pour remettre auto':''}"
+          onblur="updateRowVal('${row.id}',${k},this,${row.auto})"
+          onkeydown="if(event.key==='Enter')this.blur()"
+          ondblclick="if(${row.auto})resetAuto('${row.id}',${k})"
+          >${v===0?'—':fmt(v)}</span></td>`;
+      } else {
+        cells+=`<td class="${cur}" style="${isAuto?'color:#2d7a2d':over?'color:#e0a800':''}">${v===0?'—':fmt(v)}</td>`;
+      }
+    });
+    const badge = row.badge?` <span class="badge b-${row.badge==='calc'?'calc':row.badge}">${row.badge==='calc'?'auto':row.badge}</span>`:'';
+    const canDel = !['enc_factu60'].includes(row.id);
+    const delBtn = (!isPrint && canDel)?`<button onclick="deleteRow('${row.id}')" class="delbtn-${row.id}" style="display:none;font-size:10px;padding:1px 5px;border:0.5px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;color:#c0392b;margin-left:4px">×</button>`:'';
+    bodyHTML+=`<tr onmouseenter="showDel('${row.id}')" onmouseleave="hideDel('${row.id}')"><td>${row.label}${badge}${delBtn}</td>${typeTd(row,isPrint)}${cells}${totalCol?`<td class="${tot>0?'pos':''} bold">${fmt(tot)}</td>`:''}</tr>`;
+  });
+
+  // Total enc
+  {
+    const t=enc.reduce((a,b)=>a+b,0);
+    let cells=keys.map((k,i)=>`<td class="pos bold${isCurFn(k)?' cur-col':''}">${fmt(enc[i])}</td>`).join('');
+    bodyHTML+=`<tr class="total-enc"><td class="bold">Total encaissements TTC</td>${!isPrint?'<td></td>':''}${cells}${totalCol?`<td class="pos bold">${fmt(t)}</td>`:''}</tr>`;
+  }
+
+  // Dec rows
+  bodyHTML += section('DÉCAISSEMENTS TTC');
+  allRows.filter(r=>r.type==='dec').forEach(row=>{
+    let cells='', tot=0;
+    keys.forEach(k=>{
+      const v = readVal(row.id,k);
+      tot+=v;
+      const cur = isCurFn(k)?' cur-col':'';
+      if(!isPrint) {
+        cells+=`<td class="${cur}"><span class="editable" contenteditable="true"
+          onblur="updateRowVal('${row.id}',${k},this,false)"
+          onkeydown="if(event.key==='Enter')this.blur()"
+          >${v===0?'—':fmt(v)}</span></td>`;
+      } else {
+        cells+=`<td class="${cur}">${v===0?'—':fmt(v)}</td>`;
+      }
+    });
+    const badge = row.badge?` <span class="badge b-${row.badge}">${row.badge}</span>`:'';
+    const canDel = !['dec_salaires','dec_emprunts'].includes(row.id);
+    const delBtn = (!isPrint && canDel)?`<button onclick="deleteRow('${row.id}')" class="delbtn-${row.id}" style="display:none;font-size:10px;padding:1px 5px;border:0.5px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;color:#c0392b;margin-left:4px">×</button>`:'';
+    bodyHTML+=`<tr onmouseenter="showDel('${row.id}')" onmouseleave="hideDel('${row.id}')"><td>${row.label}${badge}${delBtn}</td>${typeTd(row,isPrint)}${cells}${totalCol?`<td class="${tot>0?'neg':''} bold">${fmt(tot)}</td>`:''}</tr>`;
+  });
+
+  // Total dec
+  {
+    const t=dec.reduce((a,b)=>a+b,0);
+    let cells=keys.map((k,i)=>`<td class="neg bold${isCurFn(k)?' cur-col':''}">${fmt(dec[i])}</td>`).join('');
+    bodyHTML+=`<tr class="total-dec"><td class="bold">Total décaissements TTC</td>${!isPrint?'<td></td>':''}${cells}${totalCol?`<td class="neg bold">${fmt(t)}</td>`:''}</tr>`;
+  }
+
+  // Flux
+  {
+    const t=flux.reduce((a,b)=>a+b,0);
+    let cells=keys.map((k,i)=>`<td class="bold${isCurFn(k)?' cur-col':''}" style="color:${clsColor(flux[i])}">${fmtS(flux[i])}</td>`).join('');
+    bodyHTML+=`<tr class="flux-row"><td class="bold">Flux net mensuel</td>${!isPrint?'<td></td>':''}${cells}${totalCol?`<td class="bold" style="color:${clsColor(t)}">${fmtS(t)}</td>`:''}</tr>`;
+  }
+
+  // Solde
+  {
+    const sf=solde[solde.length-1];
+    let cells=keys.map((k,i)=>{
+      const cur=isCurFn(k)?' cur-col':'';
+      return `<td class="bold${cur}" style="color:${solde[i]>=0?'#a8ffb8':'#ffb3b3'}">${fmtS(solde[i])}</td>`;
+    }).join('');
+    bodyHTML+=`<tr class="solde-row"><td class="bold">Solde cumulé (base ${fmt(S.soldeDepart)})</td>${!isPrint?'<td></td>':''}${cells}${totalCol?`<td class="bold" style="color:${sf>=0?'#a8ffb8':'#ffb3b3'}">${fmtS(sf)}</td>`:''}</tr>`;
+  }
+
+  if(!isPrint) {
+    bodyHTML+=`<tr><td colspan="${viewCount+(isPrint?2:3)}" class="add-btn" onclick="addCustomRow('enc')">+ Ajouter une ligne encaissement</td></tr>`;
+    bodyHTML+=`<tr><td colspan="${viewCount+(isPrint?2:3)}" class="add-btn" onclick="addCustomRow('dec')">+ Ajouter une ligne décaissement</td></tr>`;
+  }
+
+  return {headHTML, bodyHTML, solde, keys};
 }
 
 function renderTable() {
-  const { totEnc, totDec, flux, solde } = computeTotals();
-  const n = state.months.length;
-
-  const head = document.getElementById('table-head');
-  head.innerHTML = `<tr><th>Poste</th><th>Type</th>${state.months.map(m=>`<th>${m}</th>`).join('')}<th>Total</th></tr>`;
-
-  const body = document.getElementById('table-body');
-  body.innerHTML = '';
-
-  state.rows.forEach((row, rowIdx) => {
-    if (currentView === 'enc' && ['dec','total-dec','section'].includes(row.type) && !row.enc) return;
-    if (currentView === 'dec' && ['enc','total-enc','section'].includes(row.type) && row.enc) return;
-
-    const tr = document.createElement('tr');
-    if (row.type === 'section') tr.className = 'section';
-    else if (row.type === 'total-enc') tr.className = 'total-enc';
-    else if (row.type === 'total-dec') tr.className = 'total-dec';
-    else if (row.type === 'flux') tr.className = 'flux';
-    else if (row.type === 'solde') tr.className = 'solde';
-    else if (row.type === 'dette') tr.className = 'dette';
-
-    if (row.type === 'section') {
-      tr.innerHTML = `<td colspan="${n+2}">${row.label}</td>`;
-      body.appendChild(tr);
-      return;
-    }
-
-    const badge = row.badge ? `<span class="badge badge-${row.badge||'blue'}">${row.badge==='amber'?'ponctuel':row.badge==='blue'?'régulier':''}</span>` : '';
-
-    let cells = '';
-    const vals = row.values || [];
-
-    if (row.type === 'total-enc') {
-      const rowTotal = totEnc.reduce((a,b)=>a+b,0);
-      cells = totEnc.map(v=>`<td class="pos bold">${fmt(v)}</td>`).join('');
-      cells += `<td class="pos bold">${fmt(rowTotal)}</td>`;
-    } else if (row.type === 'total-dec') {
-      const rowTotal = totDec.reduce((a,b)=>a+b,0);
-      cells = totDec.map(v=>`<td class="neg bold">${fmt(v)}</td>`).join('');
-      cells += `<td class="neg bold">${fmt(rowTotal)}</td>`;
-    } else if (row.type === 'flux') {
-      const rowTotal = flux.reduce((a,b)=>a+b,0);
-      cells = flux.map(v=>`<td class="${cls(v)} bold">${fmtSigned(v)}</td>`).join('');
-      cells += `<td class="${cls(rowTotal)} bold">${fmtSigned(rowTotal)}</td>`;
-    } else if (row.type === 'solde') {
-      cells = solde.map(v=>`<td class="bold" style="color:${v>=0?'#c8f0c8':'#fcc'}">${fmtSigned(v)}</td>`).join('');
-      cells += `<td class="bold" style="color:${solde[solde.length-1]>=0?'#c8f0c8':'#fcc'}">${fmtSigned(solde[solde.length-1])}</td>`;
-    } else {
-      const rowTotal = vals.reduce((a,b)=>a+(b||0),0);
-      const isEnc = row.type === 'enc';
-      cells = vals.map((v, colIdx) => {
-        const displayVal = v || 0;
-        const colorCls = isEnc ? (displayVal > 0 ? 'pos' : '') : (displayVal > 0 ? 'neg' : '');
-        return `<td class="${colorCls}">
-          <span class="editable" contenteditable="true"
-            onblur="updateVal('${row.id}',${colIdx},this)"
-            onkeydown="if(event.key==='Enter'){this.blur();}"
-            data-raw="${displayVal}">${displayVal===0?'—':fmt(displayVal)}</span>
-        </td>`;
-      }).join('');
-      cells += `<td class="${isEnc?(rowTotal>0?'pos':''):(rowTotal>0?'neg':'')} bold">${rowTotal===0?'—':fmt(rowTotal)}</td>`;
-    }
-
-    const typeBadge = row.type==='enc'
-      ? `<span class="badge badge-green">Entrée</span>`
-      : row.type==='dec' ? `<span class="badge badge-red">Sortie</span>` : '';
-
-    tr.innerHTML = `<td>${row.label}${badge}
-      <span class="row-actions">
-        <button onclick="deleteRow('${row.id}')">Suppr.</button>
-      </span>
-    </td>
-    <td style="text-align:center">${typeBadge}</td>
-    ${cells}`;
-    body.appendChild(tr);
-  });
-
-  const addEncBtn = document.createElement('tr');
-  addEncBtn.innerHTML = `<td colspan="${n+2}" class="add-row-btn" onclick="addRow('enc')">+ Ajouter une ligne encaissement</td>`;
-  body.appendChild(addEncBtn);
-
-  const addDecBtn = document.createElement('tr');
-  addDecBtn.innerHTML = `<td colspan="${n+2}" class="add-row-btn" onclick="addRow('dec')">+ Ajouter une ligne décaissement</td>`;
-  body.appendChild(addDecBtn);
+  const {headHTML, bodyHTML} = buildTable(S.viewStartKey, VIEW_SIZE);
+  document.getElementById('thead').innerHTML = headHTML;
+  document.getElementById('tbody').innerHTML = bodyHTML;
 }
 
 function renderChart() {
-  const { solde } = computeTotals();
-  const max = Math.max(...solde.map(Math.abs), 1);
-  const chartEl = document.getElementById('chart-bars');
-  chartEl.innerHTML = solde.map((v, i) => {
-    const pct = Math.abs(v) / max * 100;
-    const color = v >= 0 ? '#2d7a2d' : '#c0392b';
+  const {solde, keys} = buildTable(S.viewStartKey, VIEW_SIZE);
+  const max = Math.max(...solde.map(Math.abs),1);
+  document.getElementById('chart').innerHTML = solde.map((v,i)=>{
+    const pct = Math.round(Math.abs(v)/max*100);
+    const color = v>=0?'#2d7a2d':'#c0392b';
+    const isCur = keys[i]===monthKey(CUR_YEAR,CUR_MONTH);
     return `<div class="chart-bar-row">
-      <div class="chart-bar-label">${state.months[i]}</div>
-      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(pct)}%;background:${color};"></div></div>
-      <div class="chart-bar-val" style="color:${color}">${fmtSigned(v)}</div>
+      <div class="chart-bar-label" style="${isCur?'font-weight:700;color:#185FA5':''}">${labelFromKey(keys[i])}</div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <div class="chart-bar-val" style="color:${color};${isCur?'font-weight:700':''}">${fmtS(v)}</div>
     </div>`;
   }).join('');
 }
 
 function render() {
+  updateNav();
   renderKPI();
   renderTable();
   renderChart();
 }
 
-function updateVal(rowId, colIdx, el) {
+function updateCA(mKey, el) {
   const raw = el.textContent.replace(/[^0-9\-]/g,'');
-  const val = parseInt(raw) || 0;
-  const row = state.rows.find(r=>r.id===rowId);
-  if (row && row.values) {
-    row.values[colIdx] = val;
-    el.dataset.raw = val;
+  const val = parseInt(raw)||0;
+  const mk = getMonthKey(mKey);
+  S.caHT[mk] = val;
+  save(); render();
+}
+
+function updateRowVal(rowId, mKey, el, isAuto) {
+  const raw = el.textContent.replace(/[^0-9\-]/g,'');
+  const val = parseInt(raw)||0;
+  if(isAuto) {
+    const mk = getMonthKey(mKey);
+    const autoVal = Math.round((S.caHT[mk]||0)*1.10*0.60);
+    if(val===autoVal) clearOverride(rowId,mKey);
+    else writeVal(rowId, mKey, val, true);
+  } else {
+    writeVal(rowId, mKey, val, false);
   }
-  save();
-  render();
+  save(); render();
 }
 
-function setView(v) {
-  currentView = v;
-  document.querySelectorAll('.toolbar button').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  render();
+function resetAuto(rowId, mKey) {
+  clearOverride(rowId, mKey);
+  save(); render();
 }
 
-function addRow(type) {
-  const label = prompt(`Nom de la ligne ${type==='enc'?'encaissement':'décaissement'} :`);
-  if (!label) return;
-  const n = state.months.length;
-  const sectionIdx = state.rows.findIndex(r => r.id === (type==='enc'?'total_enc':'total_dec'));
-  const newRow = {
-    id: 'row_' + Date.now(),
-    label,
-    type,
-    badge: '',
-    values: Array(n).fill(0)
-  };
-  state.rows.splice(sectionIdx, 0, newRow);
-  save();
-  render();
-}
+function showDel(rowId) { document.querySelectorAll('.delbtn-'+rowId).forEach(b=>b.style.display='inline'); }
+function hideDel(rowId) { document.querySelectorAll('.delbtn-'+rowId).forEach(b=>b.style.display='none'); }
 
 function deleteRow(rowId) {
-  const row = state.rows.find(r=>r.id===rowId);
-  if (!row || ['total_enc','total_dec','flux','solde','enc_title','dec_title'].includes(rowId)) {
-    alert('Cette ligne ne peut pas être supprimée.');
-    return;
-  }
-  if (!confirm(`Supprimer "${row.label}" ?`)) return;
-  state.rows = state.rows.filter(r=>r.id!==rowId);
-  save();
-  render();
+  const row = getAllRows().find(r=>r.id===rowId);
+  if(!row||['enc_factu60','dec_salaires','dec_emprunts'].includes(rowId)){alert('Cette ligne ne peut pas être supprimée.');return;}
+  if(!confirm(`Supprimer "${row.label}" ?`))return;
+  S.customRows = (S.customRows||[]).filter(r=>r.id!==rowId);
+  save(); render();
 }
 
-function addMonth() {
-  const name = prompt('Nom du mois (ex: Oct.) :');
-  if (!name) return;
-  state.months.push(name);
-  state.rows.forEach(r => { if (r.values) r.values.push(0); });
-  save();
-  render();
+function addCustomRow(type) {
+  const label = prompt(`Nom de la nouvelle ligne (${type==='enc'?'encaissement':'décaissement'}) :`);
+  if(!label)return;
+  if(!S.customRows) S.customRows=[];
+  S.customRows.push({id:'row_'+Date.now(),label,type,auto:false,badge:''});
+  save(); render();
 }
 
-function exportCSV() {
-  const { totEnc, totDec, flux, solde } = computeTotals();
-  let csv = 'Poste;' + state.months.join(';') + ';Total\n';
-  state.rows.forEach(row => {
-    if (row.type === 'section') { csv += `\n${row.label}\n`; return; }
-    let vals;
-    if (row.type==='total-enc') vals = [...totEnc, totEnc.reduce((a,b)=>a+b,0)];
-    else if (row.type==='total-dec') vals = [...totDec, totDec.reduce((a,b)=>a+b,0)];
-    else if (row.type==='flux') vals = [...flux, flux.reduce((a,b)=>a+b,0)];
-    else if (row.type==='solde') vals = [...solde, solde[solde.length-1]];
-    else vals = [...(row.values||[]), (row.values||[]).reduce((a,b)=>a+(b||0),0)];
-    csv += `${row.label};${vals.map(v=>Math.round(v||0)).join(';')}\n`;
-  });
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'tresorerie_domty_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
+function showSettings() {
+  const v = prompt('Solde bancaire actuel (€) :', S.soldeDepart);
+  if(v===null)return;
+  S.soldeDepart = parseInt(v.replace(/[^0-9\-]/g,''))||S.soldeDepart;
+  save(); render();
 }
 
 function resetData() {
-  if (!confirm('Réinitialiser toutes les données aux valeurs du mémorandum ?')) return;
-  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  save();
-  render();
+  if(!confirm('Réinitialiser toutes les données ?'))return;
+  localStorage.removeItem('domty_treo_v4');
+  location.reload();
+}
+
+// ===== IMPRESSION PDF =====
+function openPrintModal() {
+  const sel = document.getElementById('print-start');
+  sel.innerHTML = '';
+  // Générer 36 mois autour d'aujourd'hui
+  for(let i=-12; i<=24; i++) {
+    const k = monthKey(CUR_YEAR,CUR_MONTH)+i;
+    const opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = fullLabelFromKey(k);
+    if(i===0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function doPrint() {
+  const startKey = parseInt(document.getElementById('print-start').value);
+  const count = 12;
+  closeModal();
+
+  // Construire le tableau impression
+  const {headHTML, bodyHTML, solde, keys} = buildTable(startKey, count, {print:true, totalCol:true});
+
+  const firstLabel = fullLabelFromKey(keys[0]);
+  const lastLabel = fullLabelFromKey(keys[keys.length-1]);
+  document.getElementById('print-period').textContent = `Période : ${firstLabel} → ${lastLabel} · Généré le ${new Date().toLocaleDateString('fr-FR')}`;
+  document.getElementById('print-header').style.display = 'flex';
+
+  const thead = document.getElementById('thead');
+  const tbody = document.getElementById('tbody');
+  const origHead = thead.innerHTML;
+  const origBody = tbody.innerHTML;
+
+  thead.innerHTML = headHTML;
+  tbody.innerHTML = bodyHTML;
+
+  // Masquer nav, toolbar, chart pour impression
+  setTimeout(()=>{
+    window.print();
+    // Restaurer après impression
+    setTimeout(()=>{
+      thead.innerHTML = origHead;
+      tbody.innerHTML = origBody;
+      document.getElementById('print-header').style.display = 'none';
+    }, 500);
+  }, 200);
+}
+
+function exportCSV() {
+  const count = 12;
+  const {keys, enc, dec, flux, solde} = computeRange(S.viewStartKey, count);
+  const allRows = getAllRows();
+  let csv = 'Poste;' + keys.map(k=>labelFromKey(k)).join(';') + ';Total\n';
+  csv += 'CA HT;' + keys.map(k=>{const mk=getMonthKey(k);return Math.round(S.caHT[mk]||0);}).join(';') + '\n';
+  csv += 'CA TTC;' + keys.map(k=>{const mk=getMonthKey(k);return Math.round((S.caHT[mk]||0)*1.10);}).join(';') + '\n';
+  allRows.forEach(row=>{
+    const vals = keys.map(k=>readVal(row.id,k));
+    csv += `${row.label};${vals.map(v=>Math.round(v)).join(';')};${vals.reduce((a,b)=>a+b,0)}\n`;
+  });
+  csv += 'Total enc;'+enc.map(v=>Math.round(v)).join(';')+';'+Math.round(enc.reduce((a,b)=>a+b,0))+'\n';
+  csv += 'Total dec;'+dec.map(v=>Math.round(v)).join(';')+';'+Math.round(dec.reduce((a,b)=>a+b,0))+'\n';
+  csv += 'Flux net;'+flux.map(v=>Math.round(v)).join(';')+';'+Math.round(flux.reduce((a,b)=>a+b,0))+'\n';
+  csv += 'Solde cumulé;'+solde.join(';')+';'+solde[solde.length-1]+'\n';
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tresorerie_domty_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
 }
 
 render();
