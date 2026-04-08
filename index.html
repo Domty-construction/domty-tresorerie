@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trésorerie DOMTY</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #fff; color: #1a1a1a; padding: 16px; }
+
+  h1 { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: #1a1a1a; }
+  .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 16px; }
+  .kpi { background: #f5f5f5; border-radius: 8px; padding: 10px 12px; }
+  .kpi-label { font-size: 11px; color: #666; margin-bottom: 3px; }
+  .kpi-val { font-size: 18px; font-weight: 600; }
+  .kpi-val.pos { color: #2d7a2d; }
+  .kpi-val.neg { color: #c0392b; }
+  .kpi-val.warn { color: #8a5500; }
+
+  .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar button { font-size: 12px; padding: 6px 12px; border: 0.5px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; color: #1a1a1a; }
+  .toolbar button:hover { background: #f0f0f0; }
+  .toolbar button.active { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .toolbar select { font-size: 12px; padding: 6px 10px; border: 0.5px solid #ccc; border-radius: 6px; background: #fff; color: #1a1a1a; cursor: pointer; }
+  .toolbar input[type=text] { font-size: 12px; padding: 6px 10px; border: 0.5px solid #ccc; border-radius: 6px; width: 180px; }
+  .sep { flex: 1; }
+
+  .table-wrap { overflow-x: auto; border: 0.5px solid #e0e0e0; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  thead th { background: #185FA5; color: #fff; padding: 8px 10px; text-align: right; font-size: 12px; font-weight: 500; position: sticky; top: 0; }
+  thead th:first-child { text-align: left; min-width: 220px; }
+  thead th:nth-child(2) { text-align: center; width: 110px; }
+
+  tbody tr { border-bottom: 0.5px solid #eeeeee; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #fafafa; }
+  tbody tr.section { background: #f0f4f8; }
+  tbody tr.section td { font-weight: 600; font-size: 12px; color: #185FA5; padding: 6px 10px; letter-spacing: 0.03em; }
+  tbody tr.total-enc { background: #eaf4ea; }
+  tbody tr.total-dec { background: #fdf0ee; }
+  tbody tr.flux { background: #e8f0fb; }
+  tbody tr.solde { background: #185FA5; }
+  tbody tr.solde td { color: #fff; font-weight: 600; }
+  tbody tr.dette { background: #fff8e1; }
+
+  td { padding: 7px 10px; text-align: right; font-size: 12px; }
+  td:first-child { text-align: left; color: #444; }
+  td:nth-child(2) { text-align: center; }
+  td.pos { color: #2d7a2d; font-weight: 500; }
+  td.neg { color: #c0392b; font-weight: 500; }
+  td.warn { color: #8a5500; }
+  td.bold { font-weight: 600; }
+
+  .editable { cursor: pointer; border-radius: 4px; padding: 2px 4px; min-width: 70px; display: inline-block; text-align: right; }
+  .editable:hover { background: #e8f0fb; }
+  .editable.editing { background: #fff; border: 1.5px solid #185FA5; outline: none; min-width: 80px; }
+
+  .badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 4px; vertical-align: middle; font-weight: 500; }
+  .badge-blue { background: #dce8f8; color: #0C447C; }
+  .badge-green { background: #d6f0d6; color: #1a5c1a; }
+  .badge-red { background: #fce4e4; color: #8b1f1f; }
+  .badge-amber { background: #fef3cd; color: #7a4500; }
+
+  .row-actions { display: none; gap: 4px; }
+  tr:hover .row-actions { display: inline-flex; }
+  .row-actions button { font-size: 10px; padding: 1px 6px; border: 0.5px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; color: #555; }
+  .row-actions button:hover { background: #f0f0f0; }
+
+  .add-row-btn { font-size: 12px; color: #185FA5; cursor: pointer; padding: 8px 10px; display: block; border-top: 0.5px dashed #ccc; text-align: center; }
+  .add-row-btn:hover { background: #f0f4f8; }
+
+  .chart-bar-row { display: flex; gap: 8px; align-items: center; margin: 4px 0; }
+  .chart-bar-label { font-size: 11px; color: #666; min-width: 55px; text-align: right; }
+  .chart-bar-bg { flex: 1; background: #f0f0f0; border-radius: 3px; height: 10px; overflow: hidden; }
+  .chart-bar-fill { height: 10px; border-radius: 3px; transition: width 0.3s; }
+  .chart-bar-val { font-size: 11px; font-weight: 600; min-width: 70px; }
+
+  .chart-section { background: #f9f9f9; border-radius: 10px; padding: 14px; margin-top: 16px; }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a; }
+
+  .note { font-size: 11px; color: #888; font-style: italic; margin-top: 10px; padding: 8px 12px; background: #f9f9f9; border-radius: 6px; }
+  .saved-indicator { font-size: 11px; color: #2d7a2d; margin-left: 8px; display: none; }
+  .saved-indicator.show { display: inline; }
+</style>
+</head>
+<body>
+
+<h1>Compte de trésorerie — DOMTY <span class="saved-indicator" id="saved">Sauvegardé</span></h1>
+<p class="subtitle">Tous les flux en TTC · Modifiable en cliquant sur chaque valeur · Sauvegarde automatique locale</p>
+
+<div class="kpi-row" id="kpi-row"></div>
+
+<div class="toolbar">
+  <button class="active" onclick="setView('all')">Tous les mois</button>
+  <button onclick="setView('enc')">Encaissements</button>
+  <button onclick="setView('dec')">Décaissements</button>
+  <div class="sep"></div>
+  <button onclick="addMonth()">+ Ajouter un mois</button>
+  <button onclick="exportCSV()">Exporter CSV</button>
+  <button onclick="resetData()" style="color:#c0392b;">Réinitialiser</button>
+</div>
+
+<div class="table-wrap">
+  <table id="main-table">
+    <thead id="table-head"></thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
+
+<div class="chart-section">
+  <div class="chart-title">Évolution du solde cumulé (TTC)</div>
+  <div id="chart-bars"></div>
+</div>
+
+<div class="note" id="footer-note">* Solde 60% = facturation nette des acomptes déjà perçus · TVA créditrice ~1 200 €/mois · URSSAF et TVA à jour · Cliquez sur n'importe quelle valeur pour la modifier</div>
+
+<script>
+const DEFAULT_DATA = {
+  soldeDepart: -100000,
+  detteFournisseurs: 122000,
+  months: ["Avr.", "Mai", "Juin", "Juil.", "Août", "Sept."],
+  rows: [
+    { id:"enc_title", label:"ENCAISSEMENTS TTC", type:"section", enc: true },
+    { id:"enc_factu", label:"Solde factu. 60% (269 500×60%)", type:"enc", badge:"blue", values:[161700,161700,161700,161700,161700,161700] },
+    { id:"enc_report", label:"Report solde 60% fév.+mars", type:"enc", badge:"", values:[99000,0,0,0,0,0] },
+    { id:"enc_acomptes_avr", label:"Acomptes avant 15 avril (TTC)", type:"enc", badge:"", values:[200000,0,0,0,0,0] },
+    { id:"enc_acomptes_mens", label:"Acomptes mensuels nv. chantiers (132k TTC)", type:"enc", badge:"", values:[132000,132000,132000,132000,132000,132000] },
+    { id:"enc_acomptes_ponct", label:"Acomptes ponctuels identifiés", type:"enc", badge:"", values:[0,0,0,80000,0,80000] },
+    { id:"enc_recouvrement", label:"Recouvrement SCI 3 Soeurs", type:"enc", badge:"amber", values:[0,25000,0,0,0,0] },
+    { id:"total_enc", label:"Total encaissements TTC", type:"total-enc" },
+    { id:"dec_title", label:"DÉCAISSEMENTS TTC", type:"section", enc: false },
+    { id:"dec_salaires", label:"Salaires + charges sociales", type:"dec", values:[115000,115000,115000,115000,115000,115000] },
+    { id:"dec_charges", label:"Charges externes (55k HT × 1,20)", type:"dec", values:[66000,66000,66000,66000,66000,66000] },
+    { id:"dec_st", label:"ST + intérim (5% × 245k HT × 1,20)", type:"dec", values:[14700,14700,14700,14700,14700,14700] },
+    { id:"dec_materiaux", label:"Achats matériaux (25% × 245k HT × 1,20)", type:"dec", values:[73500,73500,73500,73500,73500,73500] },
+    { id:"dec_emprunts", label:"Remboursements emprunts / crédit-baux", type:"dec", values:[15000,15000,15000,15000,15000,15000] },
+    { id:"dec_dette", label:"Apurement dette fournisseurs", type:"dec", badge:"amber", values:[122000,0,0,0,0,0] },
+    { id:"total_dec", label:"Total décaissements TTC", type:"total-dec" },
+    { id:"flux", label:"Flux net mensuel", type:"flux" },
+    { id:"solde", label:"Solde cumulé (base " + (-100000).toLocaleString('fr-FR') + " €)", type:"solde" }
+  ]
+};
+
+let state = JSON.parse(localStorage.getItem('domty_treo') || 'null') || JSON.parse(JSON.stringify(DEFAULT_DATA));
+let currentView = 'all';
+
+function fmt(v) {
+  if (v === 0 || v === '') return '—';
+  return new Intl.NumberFormat('fr-FR', {maximumFractionDigits:0}).format(Math.round(v)) + ' €';
+}
+function fmtSigned(v) {
+  const s = new Intl.NumberFormat('fr-FR', {maximumFractionDigits:0}).format(Math.abs(Math.round(v))) + ' €';
+  return (v >= 0 ? '+' : '−') + s;
+}
+function cls(v) { return v > 0 ? 'pos' : v < 0 ? 'neg' : ''; }
+
+function computeTotals() {
+  const n = state.months.length;
+  const encRows = state.rows.filter(r => r.type === 'enc');
+  const decRows = state.rows.filter(r => r.type === 'dec');
+  const totEnc = Array(n).fill(0);
+  const totDec = Array(n).fill(0);
+  encRows.forEach(r => r.values.forEach((v,i) => totEnc[i] += (v||0)));
+  decRows.forEach(r => r.values.forEach((v,i) => totDec[i] += (v||0)));
+  const flux = totEnc.map((v,i) => v - totDec[i]);
+  const solde = [];
+  let cum = state.soldeDepart;
+  flux.forEach(f => { cum += f; solde.push(cum); });
+  return { totEnc, totDec, flux, solde };
+}
+
+function save() {
+  localStorage.setItem('domty_treo', JSON.stringify(state));
+  const ind = document.getElementById('saved');
+  if(ind) { ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'),1500); }
+}
+
+function renderKPI() {
+  const { totEnc, totDec, flux, solde } = computeTotals();
+  const totalEncAll = totEnc.reduce((a,b)=>a+b,0);
+  const totalDecAll = totDec.reduce((a,b)=>a+b,0);
+  const soldeFinal = solde[solde.length-1];
+  const posFinal = soldeFinal >= 0;
+
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Solde bancaire actuel</div><div class="kpi-val neg">${fmt(state.soldeDepart)}</div></div>
+    <div class="kpi"><div class="kpi-label">Total encaissements 6 mois</div><div class="kpi-val pos">${fmt(totalEncAll)}</div></div>
+    <div class="kpi"><div class="kpi-label">Total décaissements 6 mois</div><div class="kpi-val neg">${fmt(totalDecAll)}</div></div>
+    <div class="kpi"><div class="kpi-label">Solde final prévu</div><div class="kpi-val ${posFinal?'pos':'neg'}">${fmtSigned(soldeFinal)}</div></div>
+  `;
+}
+
+function renderTable() {
+  const { totEnc, totDec, flux, solde } = computeTotals();
+  const n = state.months.length;
+
+  const head = document.getElementById('table-head');
+  head.innerHTML = `<tr><th>Poste</th><th>Type</th>${state.months.map(m=>`<th>${m}</th>`).join('')}<th>Total</th></tr>`;
+
+  const body = document.getElementById('table-body');
+  body.innerHTML = '';
+
+  state.rows.forEach((row, rowIdx) => {
+    if (currentView === 'enc' && ['dec','total-dec','section'].includes(row.type) && !row.enc) return;
+    if (currentView === 'dec' && ['enc','total-enc','section'].includes(row.type) && row.enc) return;
+
+    const tr = document.createElement('tr');
+    if (row.type === 'section') tr.className = 'section';
+    else if (row.type === 'total-enc') tr.className = 'total-enc';
+    else if (row.type === 'total-dec') tr.className = 'total-dec';
+    else if (row.type === 'flux') tr.className = 'flux';
+    else if (row.type === 'solde') tr.className = 'solde';
+    else if (row.type === 'dette') tr.className = 'dette';
+
+    if (row.type === 'section') {
+      tr.innerHTML = `<td colspan="${n+2}">${row.label}</td>`;
+      body.appendChild(tr);
+      return;
+    }
+
+    const badge = row.badge ? `<span class="badge badge-${row.badge||'blue'}">${row.badge==='amber'?'ponctuel':row.badge==='blue'?'régulier':''}</span>` : '';
+
+    let cells = '';
+    const vals = row.values || [];
+
+    if (row.type === 'total-enc') {
+      const rowTotal = totEnc.reduce((a,b)=>a+b,0);
+      cells = totEnc.map(v=>`<td class="pos bold">${fmt(v)}</td>`).join('');
+      cells += `<td class="pos bold">${fmt(rowTotal)}</td>`;
+    } else if (row.type === 'total-dec') {
+      const rowTotal = totDec.reduce((a,b)=>a+b,0);
+      cells = totDec.map(v=>`<td class="neg bold">${fmt(v)}</td>`).join('');
+      cells += `<td class="neg bold">${fmt(rowTotal)}</td>`;
+    } else if (row.type === 'flux') {
+      const rowTotal = flux.reduce((a,b)=>a+b,0);
+      cells = flux.map(v=>`<td class="${cls(v)} bold">${fmtSigned(v)}</td>`).join('');
+      cells += `<td class="${cls(rowTotal)} bold">${fmtSigned(rowTotal)}</td>`;
+    } else if (row.type === 'solde') {
+      cells = solde.map(v=>`<td class="bold" style="color:${v>=0?'#c8f0c8':'#fcc'}">${fmtSigned(v)}</td>`).join('');
+      cells += `<td class="bold" style="color:${solde[solde.length-1]>=0?'#c8f0c8':'#fcc'}">${fmtSigned(solde[solde.length-1])}</td>`;
+    } else {
+      const rowTotal = vals.reduce((a,b)=>a+(b||0),0);
+      const isEnc = row.type === 'enc';
+      cells = vals.map((v, colIdx) => {
+        const displayVal = v || 0;
+        const colorCls = isEnc ? (displayVal > 0 ? 'pos' : '') : (displayVal > 0 ? 'neg' : '');
+        return `<td class="${colorCls}">
+          <span class="editable" contenteditable="true"
+            onblur="updateVal('${row.id}',${colIdx},this)"
+            onkeydown="if(event.key==='Enter'){this.blur();}"
+            data-raw="${displayVal}">${displayVal===0?'—':fmt(displayVal)}</span>
+        </td>`;
+      }).join('');
+      cells += `<td class="${isEnc?(rowTotal>0?'pos':''):(rowTotal>0?'neg':'')} bold">${rowTotal===0?'—':fmt(rowTotal)}</td>`;
+    }
+
+    const typeBadge = row.type==='enc'
+      ? `<span class="badge badge-green">Entrée</span>`
+      : row.type==='dec' ? `<span class="badge badge-red">Sortie</span>` : '';
+
+    tr.innerHTML = `<td>${row.label}${badge}
+      <span class="row-actions">
+        <button onclick="deleteRow('${row.id}')">Suppr.</button>
+      </span>
+    </td>
+    <td style="text-align:center">${typeBadge}</td>
+    ${cells}`;
+    body.appendChild(tr);
+  });
+
+  const addEncBtn = document.createElement('tr');
+  addEncBtn.innerHTML = `<td colspan="${n+2}" class="add-row-btn" onclick="addRow('enc')">+ Ajouter une ligne encaissement</td>`;
+  body.appendChild(addEncBtn);
+
+  const addDecBtn = document.createElement('tr');
+  addDecBtn.innerHTML = `<td colspan="${n+2}" class="add-row-btn" onclick="addRow('dec')">+ Ajouter une ligne décaissement</td>`;
+  body.appendChild(addDecBtn);
+}
+
+function renderChart() {
+  const { solde } = computeTotals();
+  const max = Math.max(...solde.map(Math.abs), 1);
+  const chartEl = document.getElementById('chart-bars');
+  chartEl.innerHTML = solde.map((v, i) => {
+    const pct = Math.abs(v) / max * 100;
+    const color = v >= 0 ? '#2d7a2d' : '#c0392b';
+    return `<div class="chart-bar-row">
+      <div class="chart-bar-label">${state.months[i]}</div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(pct)}%;background:${color};"></div></div>
+      <div class="chart-bar-val" style="color:${color}">${fmtSigned(v)}</div>
+    </div>`;
+  }).join('');
+}
+
+function render() {
+  renderKPI();
+  renderTable();
+  renderChart();
+}
+
+function updateVal(rowId, colIdx, el) {
+  const raw = el.textContent.replace(/[^0-9\-]/g,'');
+  const val = parseInt(raw) || 0;
+  const row = state.rows.find(r=>r.id===rowId);
+  if (row && row.values) {
+    row.values[colIdx] = val;
+    el.dataset.raw = val;
+  }
+  save();
+  render();
+}
+
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.toolbar button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  render();
+}
+
+function addRow(type) {
+  const label = prompt(`Nom de la ligne ${type==='enc'?'encaissement':'décaissement'} :`);
+  if (!label) return;
+  const n = state.months.length;
+  const sectionIdx = state.rows.findIndex(r => r.id === (type==='enc'?'total_enc':'total_dec'));
+  const newRow = {
+    id: 'row_' + Date.now(),
+    label,
+    type,
+    badge: '',
+    values: Array(n).fill(0)
+  };
+  state.rows.splice(sectionIdx, 0, newRow);
+  save();
+  render();
+}
+
+function deleteRow(rowId) {
+  const row = state.rows.find(r=>r.id===rowId);
+  if (!row || ['total_enc','total_dec','flux','solde','enc_title','dec_title'].includes(rowId)) {
+    alert('Cette ligne ne peut pas être supprimée.');
+    return;
+  }
+  if (!confirm(`Supprimer "${row.label}" ?`)) return;
+  state.rows = state.rows.filter(r=>r.id!==rowId);
+  save();
+  render();
+}
+
+function addMonth() {
+  const name = prompt('Nom du mois (ex: Oct.) :');
+  if (!name) return;
+  state.months.push(name);
+  state.rows.forEach(r => { if (r.values) r.values.push(0); });
+  save();
+  render();
+}
+
+function exportCSV() {
+  const { totEnc, totDec, flux, solde } = computeTotals();
+  let csv = 'Poste;' + state.months.join(';') + ';Total\n';
+  state.rows.forEach(row => {
+    if (row.type === 'section') { csv += `\n${row.label}\n`; return; }
+    let vals;
+    if (row.type==='total-enc') vals = [...totEnc, totEnc.reduce((a,b)=>a+b,0)];
+    else if (row.type==='total-dec') vals = [...totDec, totDec.reduce((a,b)=>a+b,0)];
+    else if (row.type==='flux') vals = [...flux, flux.reduce((a,b)=>a+b,0)];
+    else if (row.type==='solde') vals = [...solde, solde[solde.length-1]];
+    else vals = [...(row.values||[]), (row.values||[]).reduce((a,b)=>a+(b||0),0)];
+    csv += `${row.label};${vals.map(v=>Math.round(v||0)).join(';')}\n`;
+  });
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tresorerie_domty_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+function resetData() {
+  if (!confirm('Réinitialiser toutes les données aux valeurs du mémorandum ?')) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  save();
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
